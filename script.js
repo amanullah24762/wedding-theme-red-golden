@@ -12,16 +12,19 @@
     if(coverOpening) return;
     coverOpening = true;
     coverEnvelope.classList.add('activating');
-
+    setTimeout(()=>{
+      coverScreen.classList.add('opened');
+    }, 1150);
     setTimeout(()=>{
       coverScreen.classList.add('hide');
       bodyEl.classList.remove('locked');
       window.scrollTo({top:0, behavior:'instant'});
       mainContent.classList.add('show');
+      tryPlayHeroVideo();
       heroSection.classList.remove('hero-animate');
       void heroSection.offsetWidth;
       heroSection.classList.add('hero-animate');
-    }, 2750);
+    }, 1900);
   }
 
   function backToCover(){
@@ -32,6 +35,7 @@
       bodyEl.classList.add('locked');
       coverScreen.classList.remove('hide');
       coverScreen.classList.remove('light-burst');
+      coverScreen.classList.remove('opened');
       coverEnvelope.classList.remove('activating');
       coverOpening = false;
       window.scrollTo({top:0, behavior:'instant'});
@@ -54,8 +58,6 @@
       });
     }
   }
-  tryPlayHeroVideo();
-  window.addEventListener('load', tryPlayHeroVideo);
 
   // ---------- Scratch reveal on the complete countdown card ----------
   (function(){
@@ -321,7 +323,10 @@
 
     const cardObserver = new IntersectionObserver((entries)=>{
       entries.forEach((entry)=>{
-        entry.target.classList.toggle('card-in-view', entry.isIntersecting);
+        if(entry.isIntersecting){
+          entry.target.classList.add('card-in-view');
+          cardObserver.unobserve(entry.target);
+        }
       });
     }, {threshold:.22, rootMargin:'0px 0px -12% 0px'});
 
@@ -400,8 +405,7 @@
       entries.forEach(entry => {
         if(entry.isIntersecting){
           entry.target.classList.add('in-view');
-        } else {
-          entry.target.classList.remove('in-view');
+          observer.unobserve(entry.target);
         }
       });
     }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
@@ -409,7 +413,7 @@
   })();
 
   // Countdown
-  const weddingDate = new Date("2026-09-16T15:00:00");
+  const weddingDate = new Date("2026-09-16T15:00:00+05:00");
   function updateCountdown(){
     const now = new Date();
     let diff = weddingDate - now;
