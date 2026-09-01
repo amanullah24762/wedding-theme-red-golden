@@ -6,7 +6,56 @@
   const coverEnvelope = document.getElementById('coverEnvelope');
   const heroSection = document.querySelector('.hero');
   const bodyEl = document.body;
+  const entryPetals = document.getElementById('entryPetals');
   let coverOpening = false;
+  let autoScrollTimers = [];
+  let cancelAutoScrollHint = null;
+
+  // Ambient falling petals from the reference entry screen.
+  if(entryPetals && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    const petalCount = window.matchMedia('(max-width: 600px)').matches ? 18 : 24;
+    const petals = document.createDocumentFragment();
+    for(let i = 0; i < petalCount; i++){
+      const petal = document.createElement('i');
+      petal.className = 'entry-petal';
+      petal.style.left = `${Math.random() * 100}%`;
+      petal.style.animationDuration = `${5.5 + Math.random() * 4}s`;
+      petal.style.animationDelay = `${-Math.random() * 5}s`;
+      petal.style.opacity = String(.62 + Math.random() * .34);
+      petal.style.setProperty('--petal-size', `${13 + Math.random() * 10}px`);
+      const drift = -35 + Math.random() * 70;
+      petal.style.setProperty('--drift', `${drift}px`);
+      petal.style.setProperty('--drift-back', `${drift * -.45}px`);
+      petal.style.scale = String(.8 + Math.random() * .55);
+      petals.appendChild(petal);
+    }
+    entryPetals.appendChild(petals);
+  }
+
+  function scheduleScrollHint(){
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const cancelHint = ()=>{
+      autoScrollTimers.forEach(window.clearTimeout);
+      autoScrollTimers = [];
+      window.removeEventListener('wheel', cancelHint);
+      window.removeEventListener('touchstart', cancelHint);
+      window.removeEventListener('pointerdown', cancelHint);
+      cancelAutoScrollHint = null;
+    };
+    cancelAutoScrollHint = cancelHint;
+    window.addEventListener('wheel', cancelHint, {passive:true, once:true});
+    window.addEventListener('touchstart', cancelHint, {passive:true, once:true});
+    window.addEventListener('pointerdown', cancelHint, {passive:true, once:true});
+    const pulse = (index)=>{
+      if(index >= 3){ cancelHint(); return; }
+      window.scrollBy({top:58, behavior:'smooth'});
+      autoScrollTimers.push(window.setTimeout(()=>{
+        window.scrollBy({top:-58, behavior:'smooth'});
+      }, 700));
+      autoScrollTimers.push(window.setTimeout(()=>pulse(index + 1), 1450));
+    };
+    autoScrollTimers.push(window.setTimeout(()=>pulse(0), 1500));
+  }
 
   function enterInvitation(){
     if(coverOpening) return;
@@ -24,6 +73,7 @@
       heroSection.classList.remove('hero-animate');
       void heroSection.offsetWidth;
       heroSection.classList.add('hero-animate');
+      scheduleScrollHint();
     }, 1900);
   }
 
@@ -38,6 +88,7 @@
       coverScreen.classList.remove('opened');
       coverEnvelope.classList.remove('activating');
       coverOpening = false;
+      if(cancelAutoScrollHint) cancelAutoScrollHint();
       window.scrollTo({top:0, behavior:'instant'});
     }, 300);
   }
