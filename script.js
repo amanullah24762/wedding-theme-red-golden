@@ -128,13 +128,13 @@
       canvas.width = Math.max(1, Math.ceil(rect.width));
       canvas.height = Math.max(1, Math.ceil(rect.height));
       const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-      gradient.addColorStop(0, '#dff3fa');
-      gradient.addColorStop(.5, '#a9dff2');
-      gradient.addColorStop(1, '#eef9fc');
+      gradient.addColorStop(0, '#fff3dc');
+      gradient.addColorStop(.5, '#dfbd6c');
+      gradient.addColorStop(1, '#fffaf2');
       ctx.globalCompositeOperation = 'source-over';
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = 'rgba(31,166,221,.14)';
+      ctx.strokeStyle = 'rgba(159,23,34,.14)';
       ctx.lineWidth = 1;
       for(let x = -canvas.height; x < canvas.width; x += 14){
         ctx.beginPath();
@@ -208,14 +208,14 @@
 
       function paintCoating(w, h){
         const grad = ctx.createLinearGradient(0, 0, w, h);
-        grad.addColorStop(0, '#dff3fa');
-        grad.addColorStop(0.5, '#a9dff2');
-        grad.addColorStop(1, '#eef9fc');
+        grad.addColorStop(0, '#fff3dc');
+        grad.addColorStop(0.5, '#dfbd6c');
+        grad.addColorStop(1, '#fffaf2');
         ctx.globalCompositeOperation = 'source-over';
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, w, h);
 
-        ctx.strokeStyle = 'rgba(31,166,221,0.16)';
+        ctx.strokeStyle = 'rgba(159,23,34,0.16)';
         ctx.lineWidth = 1;
         for(let x = -h; x < w; x += 16){
           ctx.beginPath();
@@ -483,8 +483,21 @@
 
   // Wishes form — submits to Google Form, response saved in the linked Google Sheet
   const rsvpForm = document.getElementById('rsvp-form');
+  const responseFrame = document.getElementById('hidden_iframe');
+  const submitButton = rsvpForm.querySelector('.submit-btn');
+  const successNote = document.getElementById('form-note');
+  let formSubmitPending = false;
   rsvpForm.querySelectorAll('input[required], textarea[required]').forEach((field)=>{
     field.addEventListener('input', ()=> field.setCustomValidity(''));
+  });
+
+  responseFrame.addEventListener('load', ()=>{
+    if(!formSubmitPending) return;
+    formSubmitPending = false;
+    successNote.classList.add('show');
+    rsvpForm.reset();
+    submitButton.disabled = false;
+    submitButton.removeAttribute('aria-busy');
   });
 
   rsvpForm.addEventListener('submit', function(event){
@@ -497,14 +510,12 @@
       emptyRequiredField.focus();
       return;
     }
-    const successNote = document.getElementById('form-note');
-    const formToReset = this;
+    formSubmitPending = true;
+    submitButton.disabled = true;
+    submitButton.setAttribute('aria-busy', 'true');
+    successNote.classList.remove('show');
     localStorage.setItem('weddingWishSubmitted', 'true');
     // form posts natively into the hidden iframe (no page reload, no CORS issue)
-    setTimeout(()=>{
-      successNote.classList.add('show');
-      formToReset.reset();
-    }, 700);
   });
 
   // Show a gentle reminder when an unsubmitted visitor reaches the end of the page.
