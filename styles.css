@@ -737,7 +737,7 @@
   .letter-card h3{ margin:0 0 5px; font-size:clamp(1.2rem,3vw,1.6rem); color:#123145; }
   .letter-card p{ margin:3px 0; font-size:clamp(.78rem,2vw,.98rem); line-height:1.38; color:#5c7f90; }
   .letter-card p strong{ color:#315d70; font-weight:600; }
-  .letter-signature{ margin-top:7px; font-family:'Mrs Saint Delafield', cursive; font-size:clamp(1.5rem,4vw,2rem); color:#1fa6dd; }
+  .letter-signature{ margin-top:7px; font-family:'Cormorant Garamond',serif; font-size:clamp(1.5rem,4vw,2rem); font-weight:600; font-style:italic; color:#1fa6dd; }
   .letter-signature span{ font-family:'Cormorant Garamond',serif; font-size:.7em; color:#5c7f90; }
   .envelope-front{ inset:0; z-index:3; border-radius:0; overflow:visible; background:none; }
   .envelope-flap{ inset:0; width:auto; height:auto; z-index:4; clip-path:none; background:none; border:0; transform-origin:50% 0; transform-style:preserve-3d; transition:transform .72s cubic-bezier(.4,0,.2,1), z-index 0s .36s; }
@@ -1648,6 +1648,26 @@
   }
 
   form{ display:grid; gap:22px; position:relative; z-index:1; }
+  .required-mark{ color:#c94f4f; font-weight:700; }
+
+  .wish-reminder[hidden]{ display:none; }
+  .wish-reminder{ position:fixed; inset:0; z-index:10000; display:grid; place-items:center; padding:20px; }
+  .wish-reminder__backdrop{ position:absolute; inset:0; background:rgba(10,33,47,.68); backdrop-filter:blur(6px); }
+  .wish-reminder__card{
+    position:relative; width:min(460px,100%); padding:38px 30px 30px; text-align:center;
+    border:1px solid rgba(95,208,238,.55); border-radius:22px;
+    background:linear-gradient(145deg,#fff,#eef9fc); color:var(--paper);
+    box-shadow:0 30px 90px rgba(5,30,45,.35); animation:wishReminderIn .35s cubic-bezier(.22,.8,.3,1);
+  }
+  .wish-reminder__close{ position:absolute; top:12px; right:15px; border:0; background:none; color:var(--paper-dim); font-size:1.8rem; line-height:1; cursor:pointer; }
+  .wish-reminder__icon{ color:var(--sky); font-size:1.8rem; margin-bottom:8px; }
+  .wish-reminder__eyebrow{ margin:0 0 10px; color:#278aac; font-size:.7rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; }
+  .wish-reminder__card h2{ margin:0; font-family:'Cormorant Garamond',serif; font-size:2rem; line-height:1.05; }
+  .wish-reminder__card > p:not(.wish-reminder__eyebrow){ margin:16px auto 24px; max-width:360px; color:var(--paper-dim); line-height:1.65; }
+  .wish-reminder__action{ width:100%; padding:14px 24px; border:0; border-radius:9px; background:linear-gradient(135deg,var(--sky-soft),var(--sky)); color:var(--ink); font:700 .8rem/1 'Manrope',sans-serif; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; }
+  .wish-reminder__later{ margin-top:12px; border:0; background:none; color:var(--paper-dim); font:600 .74rem/1 'Manrope',sans-serif; cursor:pointer; }
+  @keyframes wishReminderIn{ from{ opacity:0; transform:translateY(18px) scale(.96); } to{ opacity:1; transform:none; } }
+  @media(max-width:480px){ .wish-reminder__card{ padding:34px 20px 25px; } .wish-reminder__card h2{ font-size:1.7rem; } }
   .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:22px; }
   @media (max-width:560px){ .field-row{ grid-template-columns:1fr; } }
   .field label{

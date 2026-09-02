@@ -483,21 +483,62 @@
 
   // Wishes form — submits to Google Form, response saved in the linked Google Sheet
   const rsvpForm = document.getElementById('rsvp-form');
-  rsvpForm.addEventListener('submit', function(){
-    const relationship = document.getElementById('relationship');
-    const wish = document.getElementById('wish');
-    const details = document.getElementById('rsvp-details');
-    if(details){
-      details.value = [
-        `Relationship: ${relationship ? relationship.value : ''}`,
-        `Wish: ${wish ? wish.value : ''}`
-      ].join('\n');
+  rsvpForm.querySelectorAll('input[required], textarea[required]').forEach((field)=>{
+    field.addEventListener('input', ()=> field.setCustomValidity(''));
+  });
+
+  rsvpForm.addEventListener('submit', function(event){
+    const emptyRequiredField = [...this.querySelectorAll('input[required], textarea[required]')]
+      .find((field)=> !field.value.trim());
+    if(emptyRequiredField){
+      event.preventDefault();
+      emptyRequiredField.setCustomValidity('Please fill out this field.');
+      emptyRequiredField.reportValidity();
+      emptyRequiredField.focus();
+      return;
     }
     const successNote = document.getElementById('form-note');
     const formToReset = this;
+    localStorage.setItem('weddingWishSubmitted', 'true');
     // form posts natively into the hidden iframe (no page reload, no CORS issue)
     setTimeout(()=>{
       successNote.classList.add('show');
       formToReset.reset();
     }, 700);
   });
+
+  // Show a gentle reminder when an unsubmitted visitor reaches the end of the page.
+  const wishReminder = document.getElementById('wish-reminder');
+  const reminderAction = document.getElementById('wish-reminder-action');
+  let reminderShown = false;
+
+  function closeWishReminder(){
+    wishReminder.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  function openWishReminder(){
+    if(reminderShown || localStorage.getItem('weddingWishSubmitted') === 'true') return;
+    reminderShown = true;
+    wishReminder.hidden = false;
+    document.body.style.overflow = 'hidden';
+    reminderAction.focus();
+  }
+
+  document.querySelectorAll('[data-close-reminder]').forEach((button)=>{
+    button.addEventListener('click', closeWishReminder);
+  });
+  reminderAction.addEventListener('click', ()=>{
+    closeWishReminder();
+    document.getElementById('rsvp').scrollIntoView({ behavior:'smooth', block:'start' });
+    setTimeout(()=> document.getElementById('full-name').focus(), 650);
+  });
+  document.addEventListener('keydown', (event)=>{
+    if(event.key === 'Escape' && !wishReminder.hidden) closeWishReminder();
+  });
+
+  const footer = document.querySelector('footer');
+  const reminderObserver = new IntersectionObserver((entries)=>{
+    if(entries.some((entry)=> entry.isIntersecting)) openWishReminder();
+  }, { threshold:0.35 });
+  reminderObserver.observe(footer);
